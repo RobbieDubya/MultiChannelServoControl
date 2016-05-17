@@ -15,22 +15,32 @@ public:
 
     void tick(unsigned long now);
 
+
+
 private:
+    void setServo(byte value);
+
     byte mServoPin;
     byte mLedAPin;
     byte mLedBPin;
     byte mButtonPin;
 
-    byte positionA;
-    byte positionB;
+    byte mPositionA;
+    byte mPositionB;
 
-    byte mode;
+    byte mAnimationStartValue;
+    unsigned long mAnimationStartTime;
+    unsigned long mAnimationEndTime;
+    byte mAnimationEndValue;
+    byte mServoAt;
 
-    Servo servo;
+    byte mMode;
 
-    int transitionDelayMS;
+    Servo mServo;
 
-    unsigned long lastButtonPressMS;
+    int mTransitionDelayMS;
+
+    unsigned long mLastButtonPressMS;
 };
 
 #endif
