@@ -10,7 +10,10 @@ ServoWithDelay servos[SERVO_COUNT];
 // 9 = servo
 
 void setup() {
+    servos[0].setTransitionDelayMS(5000);
+    servos[0].setPositions(20,160);
     servos[0].attach(9,6,7,8);
+
     // servos[1].attach(5,6,7,8);
     // Serial.begin(9600);
 }

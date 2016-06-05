@@ -103,3 +103,12 @@ void ServoWithDelay::setServo(byte value) {
         mServo.write(value);
     }
 }
+
+void ServoWithDelay::setTransitionDelayMS(int value) {
+    mTransitionDelayMS = value;
+}
+
+void ServoWithDelay::setPositions(byte a, byte b) {
+    mPositionA = a;
+    mPositionB = b;
+}
