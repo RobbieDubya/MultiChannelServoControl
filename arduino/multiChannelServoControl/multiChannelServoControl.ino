@@ -1,13 +1,18 @@
 #include <Servo.h>
 #include "ServoWithDelay.h"
 
-const byte SERVO_COUNT = 2;
+const byte SERVO_COUNT = 1;
 
 ServoWithDelay servos[SERVO_COUNT];
 
+// 6 + 7 LED
+// 8  = switch
+// 9 = servo
+
 void setup() {
-    servos[0].attach(1,2,3,4);
-    servos[1].attach(5,6,7,8);
+    servos[0].attach(9,6,7,8);
+    // servos[1].attach(5,6,7,8);
+    // Serial.begin(9600);
 }
 
 void loop() {

@@ -41,6 +41,8 @@ private:
     int mTransitionDelayMS;
 
     unsigned long mLastButtonPressMS;
+
+    bool mDown;
 };
 
 #endif

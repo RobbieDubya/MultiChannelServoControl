@@ -4,13 +4,14 @@ ServoWithDelay::ServoWithDelay() :
     mPositionA(45),
     mPositionB(135),
     mMode(0),
-    mTransitionDelayMS(500),
+    mTransitionDelayMS(2000),
     mLastButtonPressMS(0),
     mAnimationStartValue(0),
     mAnimationStartTime(0),
     mAnimationEndTime(0),
     mAnimationEndValue(0),
-    mServoAt(0) {
+    mServoAt(0),
+    mDown(false) {
 }
 
 void ServoWithDelay::attach(byte servoPin, byte ledAPin, byte ledBPin, byte buttonPin, bool setPinDirections) {
@@ -37,22 +38,38 @@ void ServoWithDelay::attach(byte servoPin, byte ledAPin, byte ledBPin, byte butt
 void ServoWithDelay::tick(unsigned long now) {
     byte buttonState = digitalRead(mButtonPin);
     if (buttonState == 0) {
+        // For initial entry.
+        if (mLastButtonPressMS == 0) {
+            mLastButtonPressMS = now;
+        }
+
         long diff = now - mLastButtonPressMS;
+
         if (diff < 0) {
             diff = -diff;
         }        
-        if (diff > 50) {
+        if (!mDown && diff > 10) {
+            mDown = true;
             mLastButtonPressMS = now;
 
             digitalWrite(mMode == 0 ? mLedAPin : mLedBPin, 0);
 
             mMode ^= 1;
 
+            // Serial.print("AS:");
+            // Serial.println(mServoAt);
             mAnimationStartValue = mServoAt;
             // TODO: for reversals - this should adapt the animation duration...
             mAnimationEndValue = mMode == 0 ? mPositionA : mPositionB;
+            // Serial.print("AE:");
+            // Serial.println(mAnimationEndValue);
             mAnimationStartTime = now;
             mAnimationEndTime = now + mTransitionDelayMS;
+
+        }
+    } else if (buttonState == 1) {
+        if (now - mLastButtonPressMS > 50) {
+            mDown = false;
         }
     }
 
@@ -62,7 +79,7 @@ void ServoWithDelay::tick(unsigned long now) {
             mAnimationStartTime = mAnimationEndTime = 0;
             digitalWrite(mMode == 0 ? mLedAPin : mLedBPin, 1);
         } else {
-            digitalWrite(mMode == 0 ? mLedAPin : mLedBPin, now%100 > 50);
+            digitalWrite(mMode == 0 ? mLedAPin : mLedBPin, now% 500 > 250);
 
             long animationRange = mAnimationEndValue - mAnimationStartValue;
             long delta = now - mAnimationStartTime;
@@ -70,15 +87,17 @@ void ServoWithDelay::tick(unsigned long now) {
                 setServo(mAnimationEndValue);
                 mAnimationStartTime = mAnimationEndTime = 0;
             } else {
-                long temp = delta<<8 / mTransitionDelayMS * animationRange;
-                temp >>=8;
-                setServo(mAnimationStartValue + (int)(temp));
+                long progress = animationRange * delta / mTransitionDelayMS;
+                setServo(mAnimationStartValue + (int)(progress));
             }
         }   
     }
 }
 
 void ServoWithDelay::setServo(byte value) {
+    // Serial.print(value);
+    // Serial.println();
+
     if (mServoAt != value) {
         mServoAt = value;
         mServo.write(value);
